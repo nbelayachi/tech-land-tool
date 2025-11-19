@@ -1,15 +1,17 @@
 import React, { useCallback, useState } from 'react';
 import type { FileStatus } from '../types';
-import { AlertIcon, CheckCircleIcon, UploadIcon, SpinnerIcon } from './icons';
+import { AlertIcon, CheckCircleIcon, UploadIcon, SpinnerIcon, FileTextIcon } from './icons';
 
 interface DropzoneProps {
     title: string;
     description: string;
     onFileSelect: (file: File) => void;
     status: FileStatus;
+    fileName?: string;
+    errorMessage?: string | null;
 }
 
-export const Dropzone = ({ title, description, onFileSelect, status }: DropzoneProps) => {
+export const Dropzone = ({ title, description, onFileSelect, status, fileName, errorMessage }: DropzoneProps) => {
     const [isDragOver, setIsDragOver] = useState(false);
 
     const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
@@ -57,8 +59,8 @@ export const Dropzone = ({ title, description, onFileSelect, status }: DropzoneP
                 };
             case 'valid':
                 return {
-                    icon: <CheckCircleIcon />,
-                    text: 'File Validated',
+                    icon: <FileTextIcon />,
+                    text: fileName || 'File Validated',
                     color: 'text-green-400',
                     borderColor: 'border-green-500'
                 };
@@ -81,7 +83,7 @@ export const Dropzone = ({ title, description, onFileSelect, status }: DropzoneP
     };
 
     const { icon, text, color, borderColor } = getStatusContent();
-    const dropzoneClasses = `relative flex flex-col items-center justify-center w-full h-48 border-2 ${isDragOver ? 'border-green-500' : borderColor} border-dashed rounded-lg cursor-pointer bg-slate-800/50 hover:bg-slate-800 transition-colors duration-300`;
+    const dropzoneClasses = `relative flex flex-col items-center justify-center w-full h-48 border-2 ${isDragOver ? 'border-green-500' : borderColor} border-dashed rounded-lg cursor-pointer bg-slate-800/50 hover:bg-slate-800 transition-all duration-300 group`;
 
     return (
         <div 
@@ -92,11 +94,21 @@ export const Dropzone = ({ title, description, onFileSelect, status }: DropzoneP
             onDrop={handleDrop}
             onClick={() => document.getElementById(`file-input-${title}`)?.click()}
         >
-            <div className={`flex flex-col items-center justify-center pt-5 pb-6 text-center ${color}`}>
-                <div className="w-10 h-10 mb-3">{icon}</div>
-                <p className="mb-2 text-sm font-semibold">{title}</p>
-                <p className="text-xs">{text}</p>
-                <p className="text-xs text-slate-500">{description}</p>
+            <div className={`flex flex-col items-center justify-center pt-5 pb-6 text-center ${color} px-4`}>
+                <div className="w-10 h-10 mb-3 transition-transform group-hover:scale-110 duration-300">{icon}</div>
+                <p className="mb-2 text-sm font-semibold break-all line-clamp-2">{text}</p>
+                
+                {status === 'waiting' && (
+                   <p className="text-xs text-slate-500">{description}</p>
+                )}
+                
+                {status === 'valid' && (
+                    <p className="text-xs text-green-500/80">Ready for transformation</p>
+                )}
+
+                {status === 'invalid' && errorMessage && (
+                    <p className="text-xs text-red-400/90 mt-1 font-medium max-w-[250px] break-words">{errorMessage}</p>
+                )}
             </div>
             <input 
                 id={`file-input-${title}`} 
