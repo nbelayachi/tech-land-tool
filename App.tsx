@@ -139,22 +139,28 @@ const App = () => {
     };
 
     const canRun = fileStatus.input === 'valid' && fileStatus.results === 'valid';
+    const hasActiveState = fileStatus.input !== 'waiting' || fileStatus.results !== 'waiting';
 
     return (
         <div className="min-h-screen bg-slate-800/50 flex flex-col items-center p-4 sm:p-6 md:p-8">
             <div className="w-full max-w-6xl mx-auto relative">
                 
-                {/* Reset Button */}
-                {(fileStatus.input !== 'waiting' || fileStatus.results !== 'waiting') && (
+                {/* Reset Button - Always visible but disabled if empty */}
+                <div className="absolute top-0 right-0 z-50 flex justify-end w-full pointer-events-none">
                     <button 
                         onClick={handleReset}
-                        className="absolute top-0 right-0 z-50 mt-2 mr-2 sm:mt-0 sm:mr-0 flex items-center gap-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-700 hover:border-slate-500 transition-all bg-slate-800 py-2 px-4 rounded-lg border border-slate-600 shadow-sm hover:shadow-md cursor-pointer active:scale-95"
+                        disabled={!hasActiveState}
+                        className={`pointer-events-auto mt-2 mr-2 sm:mt-0 sm:mr-0 flex items-center gap-2 text-xs font-medium transition-all py-2 px-4 rounded-lg border shadow-sm cursor-pointer 
+                            ${hasActiveState 
+                                ? 'text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border-slate-600 hover:border-slate-500 hover:shadow-md active:scale-95' 
+                                : 'text-slate-600 bg-slate-800/50 border-slate-800 opacity-50 cursor-not-allowed'
+                            }`}
                         title="Reset all files and logs"
                     >
                         <RefreshIcon className="w-4 h-4" />
                         Start Over
                     </button>
-                )}
+                </div>
 
                 <header className="text-center mb-8 border-b border-slate-700 pb-6 pt-4">
                      <div className="flex items-center justify-center gap-4 text-green-400">
@@ -260,6 +266,12 @@ const App = () => {
                         </div>
                     )}
                 </main>
+                
+                <footer className="mt-12 pb-4 text-center">
+                    <p className="text-slate-500 text-sm font-bold tracking-widest">
+                        N.B.
+                    </p>
+                </footer>
             </div>
         </div>
     );
